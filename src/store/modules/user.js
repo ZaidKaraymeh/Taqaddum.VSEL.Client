@@ -4,7 +4,9 @@ import router, { resetRouter } from '@/router'
 
 const state = {
   token: getToken(),
-  name: '',
+  id: '',
+  username: '',
+  email: '',
   avatar: '',
   introduction: '',
   roles: []
@@ -12,21 +14,27 @@ const state = {
 
 const mutations = {
   SET_TOKEN: (state, token) => {
-    state.token = token
+    state.token = token;
   },
   SET_INTRODUCTION: (state, introduction) => {
-    state.introduction = introduction
+    state.introduction = introduction;
   },
-  SET_NAME: (state, name) => {
-    state.name = name
+  SET_USERNAME: (state, username) => {
+    state.username = username;
+  },
+  SET_EMAIL: (state, email) => {
+    state.email = email;
+  },
+  SET_ID: (state, id) => {
+    state.id = id;
   },
   SET_AVATAR: (state, avatar) => {
-    state.avatar = avatar
+    state.avatar = avatar;
   },
   SET_ROLES: (state, roles) => {
-    state.roles = roles
-  }
-}
+    state.roles = roles;
+  },
+};
 
 const actions = {
   // user login
@@ -35,10 +43,12 @@ const actions = {
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
         const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
+        console.log(response)
+        commit('SET_TOKEN', response.token)
+        setToken(response.token)
         resolve()
       }).catch(error => {
+        console.log(error)
         reject(error)
       })
     })
@@ -48,24 +58,26 @@ const actions = {
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
-        const { data } = response
+        // const { data } = response
 
-        if (!data) {
+        if (!response) {
           reject('Verification failed, please Login again.')
         }
 
-        const { roles, name, avatar, introduction } = data
+        const { roles, id, email, username, avatar, introduction } = response
 
         // roles must be a non-empty array
-        if (!roles || roles.length <= 0) {
-          reject('getInfo: roles must be a non-null array!')
-        }
-
-        commit('SET_ROLES', roles)
-        commit('SET_NAME', name)
-        commit('SET_AVATAR', avatar)
-        commit('SET_INTRODUCTION', introduction)
-        resolve(data)
+        // if (!roles || roles.length <= 0) {
+        //   reject('getInfo: roles must be a non-null array!')
+        // }
+        commit("SET_TOKEN", state.token);
+        commit('SET_ROLES', ['admin'])
+        commit('SET_USERNAME', username)
+        commit('SET_EMAIL', email)
+        commit("SET_ID", id);
+        // commit('SET_AVATAR', avatar)
+        // commit('SET_INTRODUCTION', introduction)
+        resolve(state)
       }).catch(error => {
         reject(error)
       })
